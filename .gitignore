@@ -1,0 +1,57 @@
+# ===============================
+# Python / FastAPI
+# ===============================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+
+# Environment variables (IMPORTANT)
+.env
+.env.*
+!env_example
+
+# Database / local files
+*.sqlite3
+*.db
+
+# Logs
+*.log
+
+# ===============================
+# Node / React / Vite
+# ===============================
+node_modules/
+dist/
+build/
+
+# Vite cache
+.vite/
+
+# ===============================
+# Frontend misc
+# ===============================
+coverage/
+*.local
+
+# ===============================
+# OS / Editor junk
+# ===============================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ===============================
+# Uploads / temp files (future-proof)
+# ===============================
+uploads/
+media/
+temp/
+tmp/
