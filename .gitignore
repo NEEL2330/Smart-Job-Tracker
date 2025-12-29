@@ -12,12 +12,20 @@ venv/
 ENV/
 env/
 
-# Environment variables (IMPORTANT)
+# ===============================
+# Environment files
+# ===============================
 .env
-.env.*
+.env.local
+.env.production
+
+# DO NOT ignore env example file
+!.envexample
 !env_example
 
+# ===============================
 # Database / local files
+# ===============================
 *.sqlite3
 *.db
 
@@ -30,15 +38,7 @@ env/
 node_modules/
 dist/
 build/
-
-# Vite cache
 .vite/
-
-# ===============================
-# Frontend misc
-# ===============================
-coverage/
-*.local
 
 # ===============================
 # OS / Editor junk
@@ -49,7 +49,7 @@ Thumbs.db
 .idea/
 
 # ===============================
-# Uploads / temp files (future-proof)
+# Uploads / temp files
 # ===============================
 uploads/
 media/
