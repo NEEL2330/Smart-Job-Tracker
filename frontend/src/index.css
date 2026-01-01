@@ -1,8 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* =========================
+   BASE STYLES
+========================= */
 @layer base {
   body {
     @apply min-h-screen bg-mesh text-slate-100 font-sans;
@@ -12,8 +16,22 @@
   ::selection {
     @apply bg-purple-500/30 text-white;
   }
+
+  /* Prevent white flash in native selects (Windows fix) */
+  select {
+    background-color: transparent;
+    color: inherit;
+  }
+
+  option {
+    background-color: #0f172a; /* slate-900 */
+    color: #e5e7eb; /* slate-200 */
+  }
 }
 
+/* =========================
+   COMPONENTS
+========================= */
 @layer components {
   .glass {
     @apply bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/40;
@@ -42,5 +60,48 @@
   .pill {
     @apply inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold border border-white/10 bg-white/5;
   }
+
+  /* Long text readability (used in drawer) */
+  .long-text {
+    @apply text-sm text-slate-200 leading-relaxed whitespace-pre-line break-words;
+  }
 }
 
+/* =========================
+   ANIMATIONS
+========================= */
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0.85;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform;
+}
+
+/* =========================
+   SCROLLBAR (DARK THEME)
+========================= */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}

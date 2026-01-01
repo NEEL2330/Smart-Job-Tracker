@@ -3,21 +3,13 @@ from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.models.job import Job
-from app.schemas.job import (
-    JobCreate,
-    JobUpdate,
-    JobStatusUpdate,
-    JobResponse
-)
+from app.schemas.job import JobCreate, JobUpdate, JobStatusUpdate, JobResponse
 from app.utils.auth import get_current_user
 from app.models.user import User
 
-router = APIRouter(
-    prefix="/jobs",
-    tags=["Jobs"]
-)
+router = APIRouter(prefix="/jobs", tags=["Jobs"])
 
-# -------------------- DB DEPENDENCY --------------------
+
 def get_db():
     db = SessionLocal()
     try:
@@ -26,55 +18,55 @@ def get_db():
         db.close()
 
 
-# -------------------- CREATE JOB --------------------
 @router.post("/", response_model=JobResponse)
 def create_job(
     job: JobCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    new_job = Job(
-        company=job.company,
-        role=job.role,
-        location=job.location,
-        description=job.description,
-        status=job.status,
-        user_id=current_user.id
-    )
-
+    new_job = Job(**job.dict(), user_id=current_user.id)
     db.add(new_job)
     db.commit()
     db.refresh(new_job)
-
     return new_job
 
 
-# -------------------- GET MY JOBS (FILTER + PREFIX SEARCH) --------------------
 @router.get("/", response_model=list[JobResponse])
 def get_my_jobs(
-    company: str | None = Query(default=None),
-    role: str | None = Query(default=None),
-    status: str | None = Query(default=None),
+    company: str | None = Query(None),
+    role: str | None = Query(None),
+    status: str | None = Query(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    query = db.query(Job).filter(Job.user_id == current_user.id)
+    query = db.query(Job).filter(
+        Job.user_id == current_user.id,
+        Job.is_archived == False
+    )
 
-    # Prefix-based filtering (optimized)
     if company:
         query = query.filter(Job.company.ilike(f"{company}%"))
-
     if role:
         query = query.filter(Job.role.ilike(f"{role}%"))
-
     if status:
         query = query.filter(Job.status == status)
 
-    jobs = query.order_by(Job.applied_date.desc()).all()
-    return jobs
+    return query.order_by(Job.applied_date.desc()).all()
 
 
-# -------------------- UPDATE JOB (SAFE PARTIAL UPDATE) --------------------
+@router.get("/archived", response_model=list[JobResponse])
+def get_archived_jobs(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return (
+        db.query(Job)
+        .filter(Job.user_id == current_user.id, Job.is_archived == True)
+        .order_by(Job.applied_date.desc())
+        .all()
+    )
+
+
 @router.put("/{job_id}", response_model=JobResponse)
 def update_job(
     job_id: int,
@@ -84,35 +76,17 @@ def update_job(
 ):
     job = db.query(Job).filter(Job.id == job_id).first()
 
-    if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
+    if not job or job.user_id != current_user.id:
+        raise HTTPException(status_code=404)
 
-    if job.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
-
-    # Safe updates (no accidental null overwrite)
-    if data.company is not None:
-        job.company = data.company
-
-    if data.role is not None:
-        job.role = data.role
-
-    if data.location is not None:
-        job.location = data.location
-
-    if data.description is not None:
-        job.description = data.description
-
-    if data.status is not None:
-        job.status = data.status
+    for key, value in data.dict(exclude_unset=True).items():
+        setattr(job, key, value)
 
     db.commit()
     db.refresh(job)
-
     return job
 
 
-# -------------------- UPDATE STATUS ONLY --------------------
 @router.patch("/{job_id}/status", response_model=JobResponse)
 def update_job_status(
     job_id: int,
@@ -122,20 +96,15 @@ def update_job_status(
 ):
     job = db.query(Job).filter(Job.id == job_id).first()
 
-    if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
-
-    if job.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+    if not job or job.user_id != current_user.id:
+        raise HTTPException(status_code=404)
 
     job.status = data.status
     db.commit()
     db.refresh(job)
-
     return job
 
 
-# -------------------- DELETE JOB --------------------
 @router.delete("/{job_id}")
 def delete_job(
     job_id: int,
@@ -144,13 +113,24 @@ def delete_job(
 ):
     job = db.query(Job).filter(Job.id == job_id).first()
 
-    if not job:
-        raise HTTPException(status_code=404, detail="Job not found")
-
-    if job.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+    if not job or job.user_id != current_user.id:
+        raise HTTPException(status_code=404)
 
     db.delete(job)
     db.commit()
+    return {"message": "Job deleted"}
 
-    return {"message": "Job deleted successfully"}
+@router.get("/archived")
+def get_archived_jobs(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return (
+        db.query(Job)
+        .filter(
+            Job.user_id == current_user.id,
+            Job.is_archived == True
+        )
+        .order_by(Job.applied_date.desc())
+        .all()
+    )

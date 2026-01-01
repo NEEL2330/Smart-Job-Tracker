@@ -8,15 +8,20 @@ export default function Navbar() {
   const links = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/create-job", label: "Create Job" },
+    { href: "/archived", label: "Archived" }, // ✅ NEW
   ];
 
   return (
     <nav className="glass sticky top-4 z-10 flex items-center justify-between px-5 py-3">
       <div className="flex items-center gap-3">
-        <span className="pill border-purple-400/40 bg-purple-500/20 text-purple-100">AI</span>
+        <span className="pill border-purple-400/40 bg-purple-500/20 text-purple-100">
+          AI
+        </span>
         <div className="leading-tight">
           <div className="font-semibold">Smart Job Tracker</div>
-          <div className="text-xs text-slate-400">Stay organized across applications</div>
+          <div className="text-xs text-slate-400">
+            Stay organized across applications
+          </div>
         </div>
       </div>
 

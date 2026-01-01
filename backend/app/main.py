@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
 from sqlalchemy import text
-from app.routers import user, auth, job
+from app.routers import user, auth, job, ai
 
 
 
@@ -27,6 +27,7 @@ Base.metadata.create_all(bind=engine)
 app.include_router(user.router)
 app.include_router(auth.router)
 app.include_router(job.router)
+app.include_router(ai.router)
 
 @app.get("/health")
 def health_check():
