@@ -13,14 +13,6 @@ import useDebounce from "../hooks/useDebounce";
 const pageSize = 5;
 const MIN_OVERLAY_TIME = 400;
 
-const statusOptions = [
-  { value: "", label: "All Status", classes: "text-slate-200 bg-white/5 border-white/10" },
-  { value: "APPLIED", label: "Applied", classes: "text-sky-300 bg-sky-500/10 border-sky-400/40" },
-  { value: "INTERVIEW", label: "Interview", classes: "text-indigo-300 bg-indigo-500/10 border-indigo-400/40" },
-  { value: "OFFER", label: "Offer", classes: "text-emerald-300 bg-emerald-500/10 border-emerald-400/40" },
-  { value: "REJECTED", label: "Rejected", classes: "text-rose-300 bg-rose-500/10 border-rose-400/40" },
-];
-
 export default function Dashboard() {
   const navigate = useNavigate();
 
@@ -80,8 +72,19 @@ export default function Dashboard() {
     fetchJobs(page);
   }, [page]);
 
+  /* ✅ FIX: STATUS HANDLER */
+  const handleStatusChange = async (id, status) => {
+    await updateJobStatus(id, status);
+    fetchJobs(page);
+  };
+
   const handleArchive = async (id) => {
     await archiveJob(id, true);
+    fetchJobs(page);
+  };
+
+  const handleDelete = async (id) => {
+    await deleteJob(id);
     fetchJobs(page);
   };
 
@@ -96,7 +99,6 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col gap-4">
-
       {/* HEADER */}
       <div className="glass p-5 space-y-5">
         <div className="flex justify-between items-center">
@@ -105,7 +107,10 @@ export default function Dashboard() {
             <p className="text-slate-400">Track applications with clarity.</p>
           </div>
 
-          <button className="btn-primary" onClick={() => navigate("/ai-analyzer")}>
+          <button
+            className="btn-primary"
+            onClick={() => navigate("/ai-analyzer")}
+          >
             Analyze Resume with AI
           </button>
         </div>
@@ -118,13 +123,14 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* JOBS */}
       <div className="grid gap-3">
         {jobs.map((job) => (
           <JobCard
             key={job.id}
             job={job}
-            onDelete={deleteJob}
-            onStatus={updateJobStatus}
+            onDelete={handleDelete}
+            onStatus={handleStatusChange}   
             onArchive={handleArchive}
             onView={setSelectedJob}
           />

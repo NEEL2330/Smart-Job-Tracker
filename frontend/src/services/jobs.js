@@ -1,6 +1,6 @@
 import API from "./api";
 
-// Dashboard jobs
+// Active jobs (dashboard)
 export const getMyJobs = async (page = 1, limit = 5, filters = {}) => {
   const params = new URLSearchParams();
 
@@ -18,28 +18,24 @@ export const getArchivedJobs = async () => {
   return res.data;
 };
 
-// AI dropdown
+// All jobs (used ONLY for stats)
 export const getAllJobs = async () => {
   const res = await API.get("/jobs/all");
   return res.data;
 };
 
-// Update job status
 export const updateJobStatus = async (jobId, status) => {
   await API.patch(`/jobs/${jobId}/status`, { status });
 };
 
-// Archive / Unarchive job
 export const archiveJob = async (jobId, archive = true) => {
   await API.patch(`/jobs/${jobId}/archive?archive=${archive}`);
 };
 
-// ✅ THIS WAS MISSING (USED BY EditJob.jsx)
 export const updateJob = async (jobId, jobData) => {
   await API.put(`/jobs/${jobId}`, jobData);
 };
 
-// Delete job
 export const deleteJob = async (jobId) => {
   await API.delete(`/jobs/${jobId}`);
 };

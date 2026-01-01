@@ -134,3 +134,23 @@ def get_archived_jobs(
         .order_by(Job.applied_date.desc())
         .all()
     )
+
+@router.patch("/{job_id}/archive", response_model=JobResponse)
+def archive_job(
+    job_id: int,
+    archive: bool = Query(True),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    job = db.query(Job).filter(Job.id == job_id).first()
+
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    if job.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    job.is_archived = archive
+    db.commit()
+    db.refresh(job)
+    return job
