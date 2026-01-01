@@ -18,11 +18,12 @@ def get_db():
         db.close()
 
 
+# ---------------- CREATE JOB ----------------
 @router.post("/", response_model=JobResponse)
 def create_job(
     job: JobCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     new_job = Job(**job.dict(), user_id=current_user.id)
     db.add(new_job)
@@ -31,6 +32,7 @@ def create_job(
     return new_job
 
 
+# ---------------- ACTIVE JOBS ----------------
 @router.get("/", response_model=list[JobResponse])
 def get_my_jobs(
     company: str | None = Query(None),
@@ -41,7 +43,7 @@ def get_my_jobs(
 ):
     query = db.query(Job).filter(
         Job.user_id == current_user.id,
-        Job.is_archived == False
+        Job.is_archived == False,
     )
 
     if company:
@@ -54,30 +56,62 @@ def get_my_jobs(
     return query.order_by(Job.applied_date.desc()).all()
 
 
+# ---------------- ARCHIVED JOBS ----------------
 @router.get("/archived", response_model=list[JobResponse])
 def get_archived_jobs(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     return (
         db.query(Job)
-        .filter(Job.user_id == current_user.id, Job.is_archived == True)
+        .filter(
+            Job.user_id == current_user.id,
+            Job.is_archived == True,
+        )
         .order_by(Job.applied_date.desc())
         .all()
     )
 
 
+# ---------------- STATS (ACTIVE + ARCHIVED) ----------------
+@router.get("/stats")
+def get_job_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    jobs = (
+        db.query(Job)
+        .filter(Job.user_id == current_user.id)
+        .all()
+    )
+
+    stats = {
+        "total": 0,
+        "APPLIED": 0,
+        "INTERVIEW": 0,
+        "OFFER": 0,
+        "REJECTED": 0,
+    }
+
+    for job in jobs:
+        stats["total"] += 1
+        stats[job.status] += 1
+
+    return stats
+
+
+# ---------------- UPDATE JOB ----------------
 @router.put("/{job_id}", response_model=JobResponse)
 def update_job(
     job_id: int,
     data: JobUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     job = db.query(Job).filter(Job.id == job_id).first()
 
     if not job or job.user_id != current_user.id:
-        raise HTTPException(status_code=404)
+        raise HTTPException(status_code=404, detail="Job not found")
 
     for key, value in data.dict(exclude_unset=True).items():
         setattr(job, key, value)
@@ -87,17 +121,18 @@ def update_job(
     return job
 
 
+# ---------------- UPDATE STATUS ----------------
 @router.patch("/{job_id}/status", response_model=JobResponse)
 def update_job_status(
     job_id: int,
     data: JobStatusUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     job = db.query(Job).filter(Job.id == job_id).first()
 
     if not job or job.user_id != current_user.id:
-        raise HTTPException(status_code=404)
+        raise HTTPException(status_code=404, detail="Job not found")
 
     job.status = data.status
     db.commit()
@@ -105,36 +140,7 @@ def update_job_status(
     return job
 
 
-@router.delete("/{job_id}")
-def delete_job(
-    job_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    job = db.query(Job).filter(Job.id == job_id).first()
-
-    if not job or job.user_id != current_user.id:
-        raise HTTPException(status_code=404)
-
-    db.delete(job)
-    db.commit()
-    return {"message": "Job deleted"}
-
-@router.get("/archived")
-def get_archived_jobs(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    return (
-        db.query(Job)
-        .filter(
-            Job.user_id == current_user.id,
-            Job.is_archived == True
-        )
-        .order_by(Job.applied_date.desc())
-        .all()
-    )
-
+# ---------------- ARCHIVE / RESTORE ----------------
 @router.patch("/{job_id}/archive", response_model=JobResponse)
 def archive_job(
     job_id: int,
@@ -144,13 +150,27 @@ def archive_job(
 ):
     job = db.query(Job).filter(Job.id == job_id).first()
 
-    if not job:
+    if not job or job.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Job not found")
-
-    if job.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
 
     job.is_archived = archive
     db.commit()
     db.refresh(job)
     return job
+
+
+# ---------------- DELETE ----------------
+@router.delete("/{job_id}")
+def delete_job(
+    job_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    job = db.query(Job).filter(Job.id == job_id).first()
+
+    if not job or job.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    db.delete(job)
+    db.commit()
+    return {"message": "Job deleted"}

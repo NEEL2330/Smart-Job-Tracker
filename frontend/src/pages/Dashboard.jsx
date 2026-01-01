@@ -1,27 +1,28 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getMyJobs,
   deleteJob,
   updateJobStatus,
   archiveJob,
+  getJobStats,
 } from "../services/jobs";
 import JobCard from "../components/JobCard.jsx";
 import JobDescriptionDrawer from "../components/JobDescriptionDrawer.jsx";
 import useDebounce from "../hooks/useDebounce";
 
-const pageSize = 5;
-const MIN_OVERLAY_TIME = 400;
-
 export default function Dashboard() {
   const navigate = useNavigate();
 
   const [jobs, setJobs] = useState([]);
-  const [page, setPage] = useState(1);
-  const [error, setError] = useState("");
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [isFiltering, setIsFiltering] = useState(false);
-  const overlayStartRef = useRef(0);
+  const [stats, setStats] = useState({
+    total: 0,
+    APPLIED: 0,
+    INTERVIEW: 0,
+    OFFER: 0,
+    REJECTED: 0,
+  });
+
   const [selectedJob, setSelectedJob] = useState(null);
 
   const [filterInputs, setFilterInputs] = useState({
@@ -40,66 +41,41 @@ export default function Dashboard() {
     status: debouncedStatus,
   };
 
-  const fetchJobs = async (pageNumber, isFilter = false) => {
-    if (isFilter) {
-      overlayStartRef.current = Date.now();
-      setIsFiltering(true);
-    } else {
-      setInitialLoading(true);
-    }
+  const fetchJobs = async () => {
+    const data = await getMyJobs(filters);
+    setJobs(data);
+  };
 
-    try {
-      const data = await getMyJobs(pageNumber, pageSize, filters);
-      setJobs(Array.isArray(data) ? data : []);
-    } catch {
-      setError("Failed to load jobs.");
-    } finally {
-      if (isFilter) {
-        const elapsed = Date.now() - overlayStartRef.current;
-        setTimeout(() => setIsFiltering(false), Math.max(400 - elapsed, 0));
-      } else {
-        setInitialLoading(false);
-      }
-    }
+  const fetchStats = async () => {
+    const data = await getJobStats();
+    setStats(data);
   };
 
   useEffect(() => {
-    setPage(1);
-    fetchJobs(1, true);
+    fetchJobs();
+    fetchStats();
   }, [filters.company, filters.role, filters.status]);
 
-  useEffect(() => {
-    fetchJobs(page);
-  }, [page]);
-
-  /* ✅ FIX: STATUS HANDLER */
   const handleStatusChange = async (id, status) => {
     await updateJobStatus(id, status);
-    fetchJobs(page);
+    fetchJobs();
+    fetchStats();
   };
 
   const handleArchive = async (id) => {
     await archiveJob(id, true);
-    fetchJobs(page);
+    fetchJobs();
+    fetchStats();
   };
 
   const handleDelete = async (id) => {
     await deleteJob(id);
-    fetchJobs(page);
+    fetchJobs();
+    fetchStats();
   };
-
-  const stats = useMemo(() => {
-    const counts = { total: 0 };
-    jobs.forEach((job) => {
-      counts.total += 1;
-      counts[job.status] = (counts[job.status] || 0) + 1;
-    });
-    return counts;
-  }, [jobs]);
 
   return (
     <div className="flex flex-col gap-4">
-      {/* HEADER */}
       <div className="glass p-5 space-y-5">
         <div className="flex justify-between items-center">
           <div>
@@ -116,21 +92,20 @@ export default function Dashboard() {
         </div>
 
         <div className="grid grid-cols-4 gap-3">
-          <Stat title="Total" value={stats.total || 0} />
-          <Stat title="Interviews" value={stats.INTERVIEW || 0} />
-          <Stat title="Offers" value={stats.OFFER || 0} />
-          <Stat title="Rejections" value={stats.REJECTED || 0} />
+          <Stat title="Total" value={stats.total} />
+          <Stat title="Interviews" value={stats.INTERVIEW} />
+          <Stat title="Offers" value={stats.OFFER} />
+          <Stat title="Rejections" value={stats.REJECTED} />
         </div>
       </div>
 
-      {/* JOBS */}
       <div className="grid gap-3">
         {jobs.map((job) => (
           <JobCard
             key={job.id}
             job={job}
             onDelete={handleDelete}
-            onStatus={handleStatusChange}   
+            onStatus={handleStatusChange}
             onArchive={handleArchive}
             onView={setSelectedJob}
           />
