@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3307:3307"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build: .
+    restart: always
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: mysql+pymysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+
+volumes:
+  mysql_data:

@@ -35,3 +35,9 @@ export const archiveJob = async (jobId, archive = true) => {
 export const deleteJob = async (jobId) => {
   await API.delete(`/jobs/${jobId}`);
 };
+
+export const updateJob = async (jobId, payload) => {
+  const res = await API.put(`/jobs/${jobId}`, payload);
+  return res.data;
+};
+
