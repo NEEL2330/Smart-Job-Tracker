@@ -24,10 +24,10 @@ app.add_middleware(
 Base.metadata.create_all(bind=engine)
 
 # Register routers
-app.include_router(user.router, prefix="/auth")
-app.include_router(auth.router, prefix="/auth")
-app.include_router(job.router, prefix="/auth")
-app.include_router(ai.router, prefix="/auth")
+app.include_router(user.router, prefix="/api/users")
+app.include_router(auth.router, prefix="/api/auth")
+app.include_router(job.router, prefix="/api/jobs")
+app.include_router(ai.router, prefix="/api/ai")
 
 @app.get("/health")
 def health_check():
