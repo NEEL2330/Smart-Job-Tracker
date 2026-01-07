@@ -7,7 +7,7 @@ from app.schemas.job import JobCreate, JobUpdate, JobStatusUpdate, JobResponse
 from app.utils.auth import get_current_user
 from app.models.user import User
 
-router = APIRouter(prefix="/jobs", tags=["Jobs"])
+router = APIRouter(prefix="/api/jobs", tags=["Jobs"])
 
 
 def get_db():

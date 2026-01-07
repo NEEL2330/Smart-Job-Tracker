@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.services.job_service import get_job_description
 
-router = APIRouter(prefix="/ai", tags=["AI"])
+router = APIRouter(prefix="/api/ai", tags=["AI"])
 
 @router.get("/test-groq")
 def test_groq():

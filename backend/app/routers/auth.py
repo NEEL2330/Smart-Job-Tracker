@@ -10,7 +10,7 @@ from app.utils.security import verify_password, hash_password
 from app.utils.auth import create_access_token
 
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
 
 @router.post("/login", response_model=TokenResponse)
