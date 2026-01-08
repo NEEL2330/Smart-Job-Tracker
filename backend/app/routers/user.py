@@ -6,7 +6,7 @@ from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse
 
 router = APIRouter(
-    prefix="/api/users",
+    prefix="/users",
     tags=["Users"]
 )
 
