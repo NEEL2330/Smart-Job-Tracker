@@ -4,7 +4,7 @@ from app.utils.resume_parser import extract_resume_text
 from app.utils.resume_matcher_groq import match_resume_with_job_groq
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.services.job_service import get_job_description
+from app.core.jobs import get_job_description
 
 router = APIRouter(prefix="/ai", tags=["AI"])
 
