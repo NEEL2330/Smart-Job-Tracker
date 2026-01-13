@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 
-const BASE_URL = "http://127.0.0.1:8001";
-const TEST_USER_ID = 6;
+const BASE_URL = process.env.BACKEND_BASE_URL;
+const TEST_USER_ID = process.env.MCP_USER_ID;
 
 export async function apiRequest(method, path, body = null) {
   const res = await fetch(`${BASE_URL}${path}`, {
