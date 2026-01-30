@@ -20,7 +20,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     if not user or not verify_password(payload.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    access_token = create_access_token({"sub": str(user.id)})
+    access_token = create_access_token({"sub": str(user.id), "name": user.name, "email": user.email})
 
     return {
         "access_token": access_token,
@@ -43,7 +43,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
-    access_token = create_access_token({"sub": str(new_user.id)})
+    access_token = create_access_token({"sub": str(new_user.id), "name": new_user.name, "email": new_user.email})
 
     return {
         "access_token": access_token,

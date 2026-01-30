@@ -13,7 +13,12 @@ class Job(Base):
     description = Column(Text, nullable=True)
     status = Column(String(20), default="APPLIED")
     applied_date = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # New fields
+    job_url = Column(String(500), nullable=True)
+    notes = Column(Text, nullable=True)
 
     is_archived = Column(Boolean, default=False)
 
     user_id = Column(Integer, ForeignKey("users.id"))
+

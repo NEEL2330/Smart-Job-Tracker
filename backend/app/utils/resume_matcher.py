@@ -1,11 +1,9 @@
 import json
-from app.utils.groq_client import generate_text
+from app.utils.groq_client import groq_generate
 
 def match_resume_with_job(resume_text: str, job_description: str) -> dict:
-    prompt = f"""
-You are an ATS (Applicant Tracking System).
-
-Compare the RESUME and JOB DESCRIPTION below.
+    """Match resume with job description using Groq AI (Llama 3.1)."""
+    prompt = f"""You are an ATS (Applicant Tracking System). Analyze the resume against the job description.
 
 RESUME:
 {resume_text}
@@ -13,18 +11,23 @@ RESUME:
 JOB DESCRIPTION:
 {job_description}
 
-Return ONLY valid JSON in this exact format:
+Return ONLY valid JSON in exactly this format (no markdown, no code blocks):
 {{
   "match_score": number (0-100),
-  "strong_skills": [string],
-  "missing_skills": [string],
-  "suggestions": [string]
+  "strong_skills": ["list of skills from resume that match JD"],
+  "missing_skills": ["list of required skills from JD not in resume"],
+  "suggestions": ["actionable improvement suggestions"]
 }}
+
+Rules:
+- match_score must be a realistic percentage
+- strong_skills and missing_skills must come from the actual resume and JD
+- suggestions must be specific and actionable
 """
 
-    response = generate_text(prompt)
+    raw = groq_generate(prompt)
 
-    # Safety cleanup
-    response = response.replace("```json", "").replace("```", "").strip()
+    # Safety cleanup - remove markdown code blocks if present
+    raw = raw.replace("```json", "").replace("```", "").strip()
 
-    return json.loads(response)
+    return json.loads(raw)

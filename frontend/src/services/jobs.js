@@ -8,36 +8,35 @@ export const getMyJobs = async (filters = {}) => {
   if (filters.role) params.append("role", filters.role);
   if (filters.status) params.append("status", filters.status);
 
-  const res = await API.get(`/jobs?${params.toString()}`);
+  const res = await API.get(`/jobs/?${params.toString()}`);
   return res.data;
 };
 
 // Archived jobs
 export const getArchivedJobs = async () => {
-  const res = await API.get("/jobs/archived");
+  const res = await API.get("/jobs/archived/");
   return res.data;
 };
 
 // Stats (active + archived)
 export const getJobStats = async () => {
-  const res = await API.get("/jobs/stats");
+  const res = await API.get("/jobs/stats/");
   return res.data;
 };
 
 export const updateJobStatus = async (jobId, status) => {
-  await API.patch(`/jobs/${jobId}/status`, { status });
+  await API.patch(`/jobs/${jobId}/status/`, { status });
 };
 
 export const archiveJob = async (jobId, archive = true) => {
-  await API.patch(`/jobs/${jobId}/archive?archive=${archive}`);
+  await API.patch(`/jobs/${jobId}/archive/?archive=${archive}`);
 };
 
 export const deleteJob = async (jobId) => {
-  await API.delete(`/jobs/${jobId}`);
+  await API.delete(`/jobs/${jobId}/`);
 };
 
 export const updateJob = async (jobId, payload) => {
-  const res = await API.put(`/jobs/${jobId}`, payload);
+  const res = await API.put(`/jobs/${jobId}/`, payload);
   return res.data;
 };
-

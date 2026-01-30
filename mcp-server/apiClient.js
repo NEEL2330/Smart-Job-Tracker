@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 
-const BASE_URL = process.env.BACKEND_BASE_URL;
+// Use VITE_API_BASE_URL (consolidates with frontend), fallback to BACKEND_BASE_URL for compatibility
+const BASE_URL = process.env.VITE_API_BASE_URL || process.env.BACKEND_BASE_URL;
 const TEST_USER_ID = process.env.MCP_USER_ID;
 
 export async function apiRequest(method, path, body = null) {

@@ -10,6 +10,8 @@ class JobBase(BaseModel):
     description: Optional[str] = None
     status: Optional[str] = None
     is_archived: Optional[bool] = None
+    job_url: Optional[str] = None
+    notes: Optional[str] = None
 
 
 class JobCreate(JobBase):
@@ -31,3 +33,4 @@ class JobResponse(JobBase):
 
     class Config:
         from_attributes = True
+

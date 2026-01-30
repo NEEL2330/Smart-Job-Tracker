@@ -1,0 +1,21 @@
+# Terraform Variables Configuration
+# Copy this file to terraform.tfvars and fill in your values
+
+# AWS Configuration (already set with defaults, override if needed)
+# aws_region        = "ap-south-1"
+# security_group_id = "sg-0d91cd88e1d844148"
+# key_pair_name     = "smart-ai-job-tracker"
+# instance_type     = "t2.micro"
+
+# Application Secrets (REQUIRED - fill these in!)
+db_password  = "your-secure-database-password"
+jwt_secret   = "your-super-secret-jwt-key-change-this"
+groq_api_key = "your-groq-api-key"
+
+# Database Configuration (optional - defaults are set)
+# db_name = "smart_job_tracker"
+# db_user = "root"
+
+# Project Configuration (optional)
+# project_name = "smart-job-tracker"
+# environment  = "production"
