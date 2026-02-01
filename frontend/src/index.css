@@ -9,23 +9,21 @@
 ========================= */
 @layer base {
   body {
-    @apply min-h-screen bg-mesh text-slate-100 font-sans;
-    background-attachment: fixed;
+    @apply min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 text-gray-800 font-sans antialiased;
+    @apply dark:from-gray-950 dark:via-gray-900 dark:to-slate-900 dark:text-gray-100;
   }
 
   ::selection {
-    @apply bg-purple-500/30 text-white;
+    @apply bg-blue-500/30 text-blue-900 dark:text-blue-100;
   }
 
-  /* Prevent white flash in native selects (Windows fix) */
   select {
     background-color: transparent;
     color: inherit;
   }
 
   option {
-    background-color: #0f172a; /* slate-900 */
-    color: #e5e7eb; /* slate-200 */
+    @apply bg-white text-gray-800 dark:bg-gray-800 dark:text-gray-100;
   }
 }
 
@@ -33,37 +31,81 @@
    COMPONENTS
 ========================= */
 @layer components {
-  .glass {
-    @apply bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/40;
+
+  /* Cards */
+  .card {
+    @apply bg-white/80 backdrop-blur-sm border border-gray-200/60 rounded-2xl shadow-sm;
+    @apply dark:bg-gray-800/80 dark:border-gray-700/60;
+    @apply hover:shadow-md hover:border-gray-300/60 dark:hover:border-gray-600/60 transition-all duration-300;
   }
 
+  .card-elevated {
+    @apply bg-white border border-gray-100 rounded-2xl shadow-lg shadow-gray-200/40;
+    @apply dark:bg-gray-800 dark:border-gray-700 dark:shadow-black/20;
+  }
+
+  /* Buttons */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 font-semibold transition;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 font-semibold;
+    @apply transition-all duration-200 ease-out transform;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900;
   }
 
   .btn-primary {
-    @apply btn bg-gradient-to-r from-purple-600 to-cyan-400 text-white shadow-lg shadow-purple-900/40 hover:brightness-110;
+    @apply btn bg-gradient-to-r from-blue-600 to-blue-500 text-white;
+    @apply shadow-md shadow-blue-500/25;
+    @apply hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5;
+    @apply active:translate-y-0 active:shadow-md;
+    @apply focus:ring-blue-500;
   }
 
   .btn-ghost {
-    @apply btn bg-white/5 border border-white/10 text-slate-100 hover:bg-white/10;
+    @apply btn bg-gray-100/80 border border-gray-200 text-gray-700;
+    @apply dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200;
+    @apply hover:bg-gray-200/80 hover:border-gray-300;
+    @apply dark:hover:bg-gray-700 dark:hover:border-gray-600;
+    @apply focus:ring-gray-400;
   }
 
   .btn-danger {
-    @apply btn bg-gradient-to-r from-rose-500 to-orange-500 text-white shadow-lg shadow-rose-900/40 hover:brightness-110;
+    @apply btn bg-gradient-to-r from-red-500 to-rose-500 text-white;
+    @apply shadow-md shadow-red-500/25;
+    @apply hover:shadow-lg hover:shadow-red-500/30 hover:-translate-y-0.5;
+    @apply focus:ring-red-500;
   }
 
+  /* Inputs */
   .input {
-    @apply w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-slate-100 placeholder:text-slate-400 outline-none transition focus:border-purple-500/60 focus:ring-2 focus:ring-purple-500/20;
+    @apply w-full rounded-xl border border-gray-200 bg-white/80 backdrop-blur-sm;
+    @apply dark:border-gray-700 dark:bg-gray-800/80;
+    @apply px-4 py-3 text-gray-800 placeholder:text-gray-400;
+    @apply dark:text-gray-100 dark:placeholder:text-gray-500;
+    @apply outline-none transition-all duration-200;
+    @apply hover:border-gray-300 dark:hover:border-gray-600;
+    @apply focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:bg-white;
+    @apply dark:focus:bg-gray-800 dark:focus:ring-blue-500/20;
   }
 
+  .input:disabled {
+    @apply bg-gray-100 dark:bg-gray-900 cursor-not-allowed opacity-60;
+  }
+
+  /* Pills */
   .pill {
-    @apply inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold border border-white/10 bg-white/5;
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold border;
+    @apply transition-colors duration-200;
   }
 
-  /* Long text readability (used in drawer) */
-  .long-text {
-    @apply text-sm text-slate-200 leading-relaxed whitespace-pre-line break-words;
+  /* Glass */
+  .glass {
+    @apply bg-white/80 backdrop-blur-sm border border-gray-200/60 rounded-2xl shadow-sm;
+    @apply dark:bg-gray-800/80 dark:border-gray-700/60;
+  }
+
+  /* Stat cards */
+  .stat-card {
+    @apply rounded-xl border p-4 transition-all duration-200;
+    @apply hover:shadow-md hover:-translate-y-0.5;
   }
 }
 
@@ -73,21 +115,70 @@
 @keyframes slide-in {
   from {
     transform: translateX(100%);
-    opacity: 0.85;
+    opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
   }
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-slide-in {
-  animation: slide-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  will-change: transform;
+  animation: slide-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out forwards;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s ease-out forwards;
+}
+
+/* Stagger delays */
+.stagger-1 {
+  animation-delay: 0.05s;
+}
+
+.stagger-2 {
+  animation-delay: 0.1s;
+}
+
+.stagger-3 {
+  animation-delay: 0.15s;
+}
+
+.stagger-4 {
+  animation-delay: 0.2s;
 }
 
 /* =========================
-   SCROLLBAR (DARK THEME)
+   SCROLLBAR
 ========================= */
 ::-webkit-scrollbar {
   width: 8px;
@@ -98,10 +189,27 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  @apply bg-gray-300 dark:bg-gray-700;
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  @apply bg-gray-400 dark:bg-gray-600;
+}
+
+@media (max-width: 640px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+}
+
+/* =========================
+   FOCUS STYLES
+========================= */
+*:focus-visible {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-900;
+}
+
+* {
+  scroll-behavior: smooth;
 }

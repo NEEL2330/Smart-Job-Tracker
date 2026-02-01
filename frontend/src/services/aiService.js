@@ -7,7 +7,7 @@ export const resumeMatchGroq = async (jobId, resumeFile) => {
   formData.append("resume", resumeFile);
 
   const response = await axios.post(
-    `${API_BASE}/ai/resume-match-groq?job_id=${jobId}`,
+    `${API_BASE}/ai/resume-match/?job_id=${jobId}`,
     formData,
     {
       headers: { "Content-Type": "multipart/form-data" },

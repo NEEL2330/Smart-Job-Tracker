@@ -36,14 +36,14 @@ const AIAnalyzer = () => {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
 
-      <div className="glass p-6">
-        <h1 className="text-2xl font-semibold">AI Resume Analyzer</h1>
-        <p className="text-slate-400">
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+        <h1 className="text-2xl font-bold text-gray-900">AI Resume Analyzer</h1>
+        <p className="text-gray-500">
           Upload your resume and select a job to evaluate compatibility.
         </p>
       </div>
 
-      <div className="glass p-6 space-y-4">
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-4">
 
         {/* Resume */}
         <input
@@ -75,11 +75,11 @@ const AIAnalyzer = () => {
           {loading ? "Analyzing..." : "Analyze Resume"}
         </button>
 
-        {error && <p className="text-rose-400">{error}</p>}
+        {error && <p className="text-red-500 text-center">{error}</p>}
       </div>
 
       {result && (
-        <div className="glass p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
           <MatchResult result={result} />
         </div>
       )}
