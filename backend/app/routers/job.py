@@ -12,7 +12,7 @@ router = APIRouter(prefix="/jobs", tags=["Jobs"])
 
 # ---------------- CREATE ----------------
 
-@router.post("/", response_model=JobResponse)
+@router.post("", response_model=JobResponse)
 def create_job(
     job: JobCreate,
     db: Session = Depends(get_db),
@@ -23,7 +23,7 @@ def create_job(
 
 # ---------------- ACTIVE JOBS ----------------
 
-@router.get("/", response_model=list[JobResponse])
+@router.get("", response_model=list[JobResponse])
 def get_my_jobs(
     company: str | None = Query(None),
     role: str | None = Query(None),
