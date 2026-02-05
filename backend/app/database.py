@@ -1,15 +1,20 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from urllib.parse import quote_plus
-from app.config import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
+from dotenv import load_dotenv
 
-# URL encode the password to handle special characters
-ENCODED_PASSWORD = quote_plus(DB_PASSWORD)
+# Load environment variables from .env file
+load_dotenv()
 
-DATABASE_URL = (
-    f"mysql+pymysql://{DB_USER}:{ENCODED_PASSWORD}"
-    f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-)
+# Get Supabase DATABASE_URL
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is required")
+
+# Supabase provides postgres://, but SQLAlchemy requires postgresql://
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 engine = create_engine(
     DATABASE_URL,

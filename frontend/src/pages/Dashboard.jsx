@@ -56,22 +56,83 @@ export default function Dashboard() {
     fetchStats();
   }, [debouncedSearch, debouncedStatus]);
 
-  const handleStatusChange = async (id, status) => {
-    await updateJobStatus(id, status);
-    fetchJobs();
-    fetchStats();
+  const handleStatusChange = async (id, newStatus) => {
+    // Optimistic update: Update UI immediately
+    const oldJobs = [...jobs];
+    const oldStats = { ...stats };
+
+    setJobs((prev) =>
+      prev.map((job) =>
+        job.id === id ? { ...job, status: newStatus } : job
+      )
+    );
+
+    // Update stats optimistically
+    const job = jobs.find((j) => j.id === id);
+    if (job) {
+      setStats((prev) => ({
+        ...prev,
+        [job.status]: prev[job.status] - 1,
+        [newStatus]: prev[newStatus] + 1,
+      }));
+    }
+
+    // Sync with server in background
+    try {
+      await updateJobStatus(id, newStatus);
+    } catch (error) {
+      // Rollback on error
+      setJobs(oldJobs);
+      setStats(oldStats);
+    }
   };
 
   const handleArchive = async (id) => {
-    await archiveJob(id, true);
-    fetchJobs();
-    fetchStats();
+    // Optimistic update: Remove from list immediately
+    const oldJobs = [...jobs];
+    const oldStats = { ...stats };
+    const job = jobs.find((j) => j.id === id);
+
+    setJobs((prev) => prev.filter((j) => j.id !== id));
+
+    if (job) {
+      setStats((prev) => ({
+        ...prev,
+        total: prev.total - 1,
+        [job.status]: prev[job.status] - 1,
+      }));
+    }
+
+    try {
+      await archiveJob(id, true);
+    } catch (error) {
+      setJobs(oldJobs);
+      setStats(oldStats);
+    }
   };
 
   const handleDelete = async (id) => {
-    await deleteJob(id);
-    fetchJobs();
-    fetchStats();
+    // Optimistic update: Remove from list immediately
+    const oldJobs = [...jobs];
+    const oldStats = { ...stats };
+    const job = jobs.find((j) => j.id === id);
+
+    setJobs((prev) => prev.filter((j) => j.id !== id));
+
+    if (job) {
+      setStats((prev) => ({
+        ...prev,
+        total: prev.total - 1,
+        [job.status]: prev[job.status] - 1,
+      }));
+    }
+
+    try {
+      await deleteJob(id);
+    } catch (error) {
+      setJobs(oldJobs);
+      setStats(oldStats);
+    }
   };
 
   // Filter jobs locally for search

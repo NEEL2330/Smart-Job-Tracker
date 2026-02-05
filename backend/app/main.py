@@ -8,7 +8,8 @@ from app.routers import user, auth, job, ai, ai_tools
 
 app = FastAPI(
     title="Smart Job Application Tracker",
-    version="1.0.0"
+    version="1.0.0",
+    redirect_slashes=False  # Prevent 307 redirects for trailing slashes
 )
 
 # CORS
